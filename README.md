@@ -1,6 +1,7 @@
 # ronda-routing-clout
 
-__ronda-routing-clout__ offers a [ronda-routing](https://github.com/xsc/ronda-routing) `RouteDescriptor` for [clout](https://github.com/weavejester/clout).
+__ronda-routing-clout__ offers a [ronda-routing](https://github.com/xsc/ronda-routing) `RouteDescriptor` for [clout](https://github.com/weavejester/clout),
+actually implementing bidirectionality (i.e. path generation) on top of it.
 
 [![Build Status](https://travis-ci.org/xsc/ronda-routing-clout.svg)](https://travis-ci.org/xsc/ronda-routing-clout)
 
