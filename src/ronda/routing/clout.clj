@@ -120,7 +120,7 @@
 
 ;; ## Analysis
 
-(defn- analyze
+(defn- analyze*
   "Compile all routes in the given map."
   [routes]
   (reduce
@@ -133,16 +133,36 @@
             (update-in [:compiled-routes] (fnil conj []) [route-id r]))))
     {} routes))
 
+(defn- attach-existing-meta
+  "Preserve metadata."
+  [data existing]
+  (update-in data [:routes]
+             #(->> (for [[route-id m] %]
+                     [route-id
+                      (merge
+                        (get-in existing [:routes route-id])
+                        m)])
+                   (into {}))))
+
+(defn- analyze
+  "Compile all routes in the given map and analyze the result."
+  [routes & [existing]]
+  (attach-existing-meta
+    (analyze* routes)
+    existing))
+
 ;; ## Match
 
 (defn- match-route
   "Match compiled routes in-order against the given request."
-  [{:keys [compiled-routes]} request]
+  [{:keys [routes compiled-routes]} request]
   (some
     (fn [[route-id route]]
       (if-let [r (clout/route-matches route request)]
-        {:id route-id
-         :route-params r}))
+        (let [mta (get-in routes [route-id :meta])]
+          (cond-> {:id route-id
+                   :route-params r}
+            mta (assoc :meta mta)))))
     compiled-routes))
 
 ;; ## Prefix
@@ -159,9 +179,10 @@
 
 (defn- prefix-all-routes
   "Prefix all routes, creating pairs of `[route-string patterns]`."
-  [{:keys [compiled-routes]} prefix additional-patterns]
-  (for [[route-id route] compiled-routes]
-    [route-id (prefix-route route prefix additional-patterns)]))
+  [{:keys [compiled-routes] :as data} prefix additional-patterns]
+  (-> (for [[route-id route] compiled-routes]
+        [route-id (prefix-route route prefix additional-patterns)])
+      (analyze data)))
 
 ;; ## Descriptor
 
@@ -172,27 +193,36 @@
          (match-route routes)))
   (generate [_ route-id values]
     (if-let [route-params (get-in routes [:route-params route-id])]
-      (let [path (get-in routes [:routes route-id :path])
+      (let [{:keys [path meta]} (get-in routes [:routes route-id])
             vs (u/stringify-vals values)
             rs (select-keys vs route-params)
             qs (apply dissoc vs route-params)]
-        {:path (gen/generate-by path rs)
-         :route-params rs
-         :query-params qs})
+        (cond-> {:path (gen/generate-by path rs)
+                 :route-params rs
+                 :query-params qs}
+          meta (assoc :meta meta)))
       (u/throwf "unknown route ID: %s" route-id)))
+  (update-metadata [_ route-id f]
+    (let [v (get-in routes [:routes route-id] ::not-found)]
+      (when (= v ::not-found)
+        (throw
+          (IllegalArgumentException.
+            (format "no such route: %s" route-id))))
+      (CloutDescriptor.
+        (update-in routes [:routes route-id :meta] f))))
+  (routes [_]
+    (:routes routes))
+
+  describe/PrefixableRouteDescriptor
   (prefix-string [_ s]
     (->> (prefix-all-routes routes s nil)
-         (analyze)
          (CloutDescriptor.)))
   (prefix-route-param [_ k pattern]
     (->> (prefix-all-routes
            routes
            (str k)
            (if pattern {k pattern}))
-         (analyze)
-         (CloutDescriptor.)))
-  (routes [_]
-    (:routes routes)))
+         (CloutDescriptor.))))
 
 (defn descriptor
   "Generate RouteDescriptor based on a map of route ID -> clout route. Routes can

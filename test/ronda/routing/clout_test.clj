@@ -34,6 +34,29 @@
    :b ["/b/" :id]
    :c ["/b/" :id "/c"]})
 
+(fact "about route metadata."
+      (let [d (describe/update-metadata
+                (clout/descriptor {:test "/"})
+                :test #(assoc % :json? true))
+            d' (describe/prefix-string d "/api")]
+        (describe/match d :get "/")
+        => {:id :test
+            :route-params {}
+            :meta {:json? true}}
+
+        (describe/generate d :test {})
+        => {:path "/"
+            :route-params {}
+            :query-params {}
+            :meta {:json? true}}
+
+        (describe/routes d)
+        => {:test {:path "/", :meta {:json? true}}}
+
+        (describe/routes d')
+        => {:test {:path "/api/", :meta {:json? true}}})
+      )
+
 (fact "about inline patterns."
       (let [[a b c :as route] (-> {:article "/article-:id{\\d+}-full"}
                                   (clout/descriptor)
