@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
-                 [ronda/routing "0.1.0-RC4"]
+                 [ronda/routing "0.1.0"]
                  [clout "2.1.0"]]
   :profiles {:dev {:dependencies [[midje "1.6.3"]
                                   [joda-time "2.7"]]
