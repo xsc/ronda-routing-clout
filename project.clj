@@ -1,4 +1,4 @@
-(defproject ronda/routing-clout "0.1.0"
+(defproject ronda/routing-clout "0.1.1-SNAPSHOT"
   :description "ronda RouteDescriptor for clout."
   :url "https://github.com/xsc/ronda-routing-clout"
   :license {:name "Eclipse Public License"
