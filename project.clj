@@ -3,9 +3,9 @@
   :url "https://github.com/xsc/ronda-routing-clout"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
+  :dependencies [[org.clojure/clojure "1.7.0-alpha6"]
                  [ronda/routing "0.2.4"]
-                 [clout "2.1.0"]]
+                 [clout "2.1.1"]]
   :profiles {:dev {:dependencies [[midje "1.6.3"]
                                   [joda-time "2.7"]]
                    :plugins [[lein-midje "3.1.3"]]}}
