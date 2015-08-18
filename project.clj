@@ -1,8 +1,10 @@
 (defproject ronda/routing-clout "0.1.1-SNAPSHOT"
   :description "ronda RouteDescriptor for clout."
   :url "https://github.com/xsc/ronda-routing-clout"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "MIT License"
+            :url "http://opensource.org/licenses/MIT"
+            :year 2015
+            :key "mit"}
   :dependencies [[org.clojure/clojure "1.7.0-beta2"]
                  [ronda/routing "0.2.7"]
                  [clout "2.1.1"]]
